@@ -1,0 +1,12 @@
+**/__pycache__
+.DS_Store
+
+venv
+.venv
+
+# secrets file for act, tool for local GitHub Actions testing
+.secrets
+
+.ruff_cache
+.mypy_cache
+.dmypy.json
