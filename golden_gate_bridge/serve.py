@@ -4,7 +4,7 @@ from typing import Optional
 
 import modal
 from fastapi import FastAPI, Header
-
+import asyncio
 from .config import (
     GPU,
     IMAGE,
@@ -74,7 +74,7 @@ class Model:
         )
 
     @modal.method()
-    def inference(self, serving_config: ServingConfig) -> GenerationOutput:
+    async def inference(self, serving_config: ServingConfig) -> GenerationOutput:
         assert self.composer is not None
 
         wrapped_model = self.model
@@ -92,7 +92,8 @@ class Model:
         )
         self.composer.pretty_print()
 
-        output = generate(
+        output = await asyncio.to_thread(
+            generate,
             composer=self.composer,
             model=self.model,
             tokenizer=self.tokenizer,

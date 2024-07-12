@@ -46,7 +46,7 @@ class ModelSingleton:
 def ui() -> FastAPI:
     logger.info("Starting the UI...")
 
-    def go(
+    async def go(
         identifier: str,
         question: str,
         max_new_tokens: int,
@@ -60,8 +60,8 @@ def ui() -> FastAPI:
 
         if isinstance(coefficients, str):
             coefficients = [float(coef.strip()) for coef in coefficients.split(",")]
-        # model = Model(identifier=identifier)
-        model = ModelSingleton.get_instance(identifier=identifier)
+        model = Model(identifier=identifier)
+        # model = ModelSingleton.get_instance(identifier=identifier)
         serving_config = ServingConfig(
             question=question,
             max_new_tokens=max_new_tokens,
@@ -70,7 +70,7 @@ def ui() -> FastAPI:
             show_baseline=show_baseline,
             coefficients=coefficients,
         )
-        output: GenerationOutput = model.inference.remote(serving_config)
+        output: GenerationOutput = await model.inference.remote.aio(serving_config)
 
         return output.model_dump(mode="json")
 
@@ -111,6 +111,7 @@ def ui() -> FastAPI:
         "\n\nPowered by [Modal](https://modal.com) 🚀",
         theme="soft",
         allow_flagging="never",
+        concurrency_limit=10,
     )
     logger.info("Interface created...")
     return mount_gradio_app(app=web_app, blocks=interface, path="/")  # type: ignore[no-any-return]
