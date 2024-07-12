@@ -1,0 +1,51 @@
+name: continuous-integration
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/**/*"
+      - ".ruff.toml"
+      - "pyproject.toml"
+      - "scripts/**/*"
+      - "requirements.txt"
+      - "requirements-dev.txt"
+  pull_request:
+    branches:
+      - main
+
+
+# cancel any previous runs that are still in progress if a new one is queued.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env: # FIXME: env cannot be passed down to jobs defined as workflow call what?! https://github.com/orgs/community/discussions/26671 - this is annoying.
+  WORKING_DIRECTORY: "."
+  RUFF_OUTPUT_FILENAME: "ruff_results.log"
+  ISORT_OUTPUT_FILENAME: "isort_results.log"
+  BLACK_OUTPUT_FILENAME: "black_results.log"
+  MYPY_OUTPUT_FILENAME: "mypy_results.log"
+
+jobs:
+  setup-env-vars: # FIXME: see env comment.
+    runs-on: ubuntu-latest
+    outputs:
+      working-directory: ${{ env.WORKING_DIRECTORY }}
+      ruff-output-filename: ${{ env.RUFF_OUTPUT_FILENAME }}
+      isort-output-filename: ${{ env.ISORT_OUTPUT_FILENAME }}
+      black-output-filename: ${{ env.BLACK_OUTPUT_FILENAME }}
+      mypy-output-filename: ${{ env.MYPY_OUTPUT_FILENAME }}
+    steps:
+      - run: echo "Exposing env vars to reusable workflows."
+  continuous-integration:
+    needs: setup-env-vars
+    uses: ./.github/workflows/_continuous_integration.yaml
+    with:
+      working-directory: ${{ needs.setup-env-vars.outputs.working-directory }}
+      ruff-output-filename: ${{ needs.setup-env-vars.outputs.ruff-output-filename }}
+      isort-output-filename: ${{ needs.setup-env-vars.outputs.isort-output-filename }}
+      black-output-filename: ${{ needs.setup-env-vars.outputs.black-output-filename }}
+      mypy-output-filename: ${{ needs.setup-env-vars.outputs.mypy-output-filename }}
+    secrets: inherit

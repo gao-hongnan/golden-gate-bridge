@@ -1,5 +1,8 @@
 # Golden Gate Bridge
 
+This project is heavily inspired by the [Repeng](https://github.com/vgel/repeng/tree/main)
+repository - which is a python library for generating control vectors (read: representation engineering).
+
 The configuration, state, constants, and initialization settings for the project
 are currently housed in the `golden_gate_bridge/config.py` file. Presently, any
 modifications to the configuration require manual updates directly within the

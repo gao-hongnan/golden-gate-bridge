@@ -129,7 +129,7 @@ async def generate_output(serving_config: ServingConfig, identifier: str | None 
     """
     identifier = identifier or IDENTIFIER
     model = Model(identifier=identifier)
-    output = model.inference.remote.aio(serving_config)
+    output = await model.inference.remote.aio(serving_config)
     return output  # type: ignore[no-any-return]
 
 

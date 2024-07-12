@@ -10,3 +10,4 @@ venv
 .ruff_cache
 .mypy_cache
 .dmypy.json
+.vscode

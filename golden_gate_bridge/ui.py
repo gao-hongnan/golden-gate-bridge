@@ -8,7 +8,7 @@ from fastapi import FastAPI
 
 from .config import IMAGE, Constants, ServingConfig, app
 from .logger import get_logger
-from .serve import Model, IDENTIFIER, IDENTIFIERS
+from .serve import IDENTIFIER, IDENTIFIERS, Model
 from .state import GenerationOutput
 
 with IMAGE.imports():
