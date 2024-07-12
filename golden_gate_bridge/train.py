@@ -14,24 +14,13 @@ from pathlib import Path
 from .config import ALLOW_WANDB, GPU, IMAGE, VOLUME, Composer, Constants, app
 from .logger import get_logger
 from .state import GenerationOutput, State
-from .utils import (
-    chat_template_unparse,
-    load_model,
-    load_suffixes,
-    load_tokenizer,
-    make_dataset,
-    print_layers,
-)
+from .utils import chat_template_unparse, load_model, load_suffixes, load_tokenizer, make_dataset, print_layers
 
 with IMAGE.imports():
     import torch
     import wandb
     from repeng import ControlModel, ControlVector
-    from transformers import (
-        PreTrainedTokenizerBase,
-        PreTrainedTokenizerFast,
-        TextStreamer,
-    )
+    from transformers import PreTrainedTokenizerBase, PreTrainedTokenizerFast, TextStreamer
     from transformers.generation.utils import GenerateOutput
     from transformers.tokenization_utils_base import BatchEncoding
     from wandb.sdk.wandb_run import Run
@@ -50,9 +39,9 @@ def generate(
 ) -> GenerationOutput:
     """Generate responses for the given input using the control model."""
     # inference on master gpu
-    input_ids: BatchEncoding[torch.Tensor, torch.Tensor] = tokenizer(
-        input, return_tensors="pt"
-    ).to(composer.generation_config.device)
+    input_ids: BatchEncoding[torch.Tensor, torch.Tensor] = tokenizer(input, return_tensors="pt").to(
+        composer.generation_config.device
+    )
 
     composer.generation_config.pad_token_id = tokenizer.eos_token_id
 
@@ -100,9 +89,7 @@ def generate(
     container_idle_timeout=int(Constants.CONTAINER_IDLE_TIMEOUT),
     volumes={Constants.TARGET_ARTIFACTS_DIR: VOLUME},
 )
-def train_control_vector(
-    composer: Composer, state: State, *, suffixes: list[str], question: str
-) -> None:
+def train_control_vector(composer: Composer, state: State, *, suffixes: list[str], question: str) -> None:
     """Train the control vector, and generate responses."""
 
     # Create save directory
@@ -124,15 +111,11 @@ def train_control_vector(
         for i in range(1, len(tokens))
     ]
 
-    model = load_model(
-        Constants.MODEL_NAME, device_map=composer.llama_config.device_map
-    )
+    model = load_model(Constants.MODEL_NAME, device_map=composer.llama_config.device_map)
     print_layers(model)
 
     wrapped_model = model
-    model = ControlModel(
-        wrapped_model, layer_ids=composer.llama_config.layer_ids
-    )
+    model = ControlModel(wrapped_model, layer_ids=composer.llama_config.layer_ids)
 
     bridge_dataset = make_dataset(
         template=chat_template_unparse([("user", "{persona}")]),
@@ -142,9 +125,7 @@ def train_control_vector(
     )
 
     model.reset()
-    bridge_vector = ControlVector.train(
-        model, tokenizer, bridge_dataset, **composer.repeng_config.model_dump()
-    )
+    bridge_vector = ControlVector.train(model, tokenizer, bridge_dataset, **composer.repeng_config.model_dump())
     # state is mutable
     state.controlled_vector = bridge_vector
 
@@ -154,8 +135,7 @@ def train_control_vector(
         tokenizer=tokenizer,
         input=chat_template_unparse([("user", f"{question}")]),
         labeled_vectors=[
-            (f"{coef} * bridge_vector", coef * bridge_vector)
-            for coef in composer.generation_config.coefficients
+            (f"{coef} * bridge_vector", coef * bridge_vector) for coef in composer.generation_config.coefficients
         ],
     )
     state.answers = output.answers
@@ -166,13 +146,9 @@ def train_control_vector(
         run.finish()
 
     state.composer = composer
-    state.save_snapshots(
-        filepath=f"{model_registry}/{composer.registry.save_filename}"
-    )
+    state.save_snapshots(filepath=f"{model_registry}/{composer.registry.save_filename}")
     # NOTE: save `controlled_vector` as a `.pt` and `.gguf` file
-    state.controlled_vector.export_gguf(
-        path=f"{model_registry}/{composer.registry.gguf_filename}"
-    )
+    state.controlled_vector.export_gguf(path=f"{model_registry}/{composer.registry.gguf_filename}")
     VOLUME.commit()
 
 
@@ -194,6 +170,4 @@ def main(suffix_filepath: str, question: str = "What are you?") -> None:
 
     state = State()
 
-    train_control_vector.remote(
-        composer=composer, state=state, suffixes=suffixes, question=question
-    )
+    train_control_vector.remote(composer=composer, state=state, suffixes=suffixes, question=question)

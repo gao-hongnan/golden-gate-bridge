@@ -3,14 +3,10 @@
 import logging
 
 
-def get_logger(
-    name: str | None = None, level: int = logging.INFO
-) -> logging.Logger:
+def get_logger(name: str | None = None, level: int = logging.INFO) -> logging.Logger:
     logger = logging.getLogger(name)
     handler = logging.StreamHandler()
-    handler.setFormatter(
-        logging.Formatter("%(levelname)s: %(asctime)s: %(name)s  %(message)s")
-    )
+    handler.setFormatter(logging.Formatter("%(levelname)s: %(asctime)s: %(name)s  %(message)s"))
     logger.addHandler(handler)
     logger.setLevel(level)
     return logger

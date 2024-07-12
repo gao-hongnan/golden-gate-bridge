@@ -47,9 +47,7 @@ def download_model_weights() -> None:
     """Download model weights from huggingface hub and cache it to `CACHE_DIR`."""
     from huggingface_hub import snapshot_download
 
-    snapshot_download(
-        repo_id=Constants.MODEL_NAME, cache_dir=Constants.CACHE_DIR
-    )
+    snapshot_download(repo_id=Constants.MODEL_NAME, cache_dir=Constants.CACHE_DIR)
 
 
 IMAGE = (
@@ -78,16 +76,12 @@ app = App(
     image=IMAGE,
     secrets=[
         modal.Secret.from_name("huggingface"),
-        modal.Secret.from_dict(
-            {"ALLOW_WANDB": os.environ.get("ALLOW_WANDB", "false")}
-        ),
+        modal.Secret.from_dict({"ALLOW_WANDB": os.environ.get("ALLOW_WANDB", "false")}),
         *([modal.Secret.from_name("wandb")] if ALLOW_WANDB else []),
     ],
 )
 
-VOLUME = Volume.from_name(
-    label=Constants.SOURCE_ARTIFACTS_DIR, create_if_missing=True
-)
+VOLUME = Volume.from_name(label=Constants.SOURCE_ARTIFACTS_DIR, create_if_missing=True)
 GPU = modal.gpu.H100(count=2)
 
 
@@ -110,9 +104,7 @@ class DatasetConfig(BaseModel):
 class GoldenGateBridgeConfig(DatasetConfig):
     """Dataset configuration for Golden Gate Bridge."""
 
-    positive_personas: list[str] = [
-        "Please act as if you are the golden gate bridge"
-    ]
+    positive_personas: list[str] = ["Please act as if you are the golden gate bridge"]
     negative_personas: list[str] = [""]
 
 
@@ -189,9 +181,7 @@ class GenerationConfig(ServingConfig):
 class Registry(BaseModel):
     """Store/Registry configuration across the training regime."""
 
-    identifier: str = Field(
-        default_factory=lambda: datetime.now().strftime("%Y%m%d%H%M%S")
-    )
+    identifier: str = Field(default_factory=lambda: datetime.now().strftime("%Y%m%d%H%M%S"))
     save_filename: str = "controlled_golden_gate_bridge_repeng.pt"
     gguf_filename: str = "controlled_golden_gate_bridge_repeng.gguf"
     save_directory: str = Field(default=None)  # Initialize as post init
@@ -199,9 +189,7 @@ class Registry(BaseModel):
 
     def model_post_init(self, __context: Any) -> None:
         """Post initialization for the model."""
-        self.save_directory = (
-            f"{Constants.TARGET_ARTIFACTS_DIR}/{Constants.APP_NAME}"
-        )
+        self.save_directory = f"{Constants.TARGET_ARTIFACTS_DIR}/{Constants.APP_NAME}"
         self.model_registry = f"{self.save_directory}/{self.identifier}"
 
     class Config:
@@ -220,15 +208,11 @@ class WandbConfig(BaseModel):
 class Composer(BaseModel):
     """Compose all sub-configurations."""
 
-    golden_gate_config: GoldenGateBridgeConfig = Field(
-        default_factory=GoldenGateBridgeConfig
-    )
+    golden_gate_config: GoldenGateBridgeConfig = Field(default_factory=GoldenGateBridgeConfig)
     repeng_config: RepengConfig = Field(default_factory=RepengConfig)
     tokenizer_config: TokenizerConfig = Field(default_factory=TokenizerConfig)
     llama_config: LlamaConfig = Field(default_factory=LlamaConfig)
-    generation_config: GenerationConfig = Field(
-        default_factory=GenerationConfig
-    )
+    generation_config: GenerationConfig = Field(default_factory=GenerationConfig)
     wandb_config: WandbConfig = Field(default_factory=WandbConfig)
     registry: Registry = Field(default_factory=Registry)
     # constants: Type[Constants] = Constants

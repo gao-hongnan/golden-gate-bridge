@@ -18,9 +18,7 @@ with IMAGE.imports():
     )
 
 
-def load_tokenizer(
-    model_name: str, **kwargs: Any
-) -> PreTrainedTokenizerBase | PreTrainedTokenizerFast:
+def load_tokenizer(model_name: str, **kwargs: Any) -> PreTrainedTokenizerBase | PreTrainedTokenizerFast:
     """Load tokenizer from huggingface.
 
     Parameters
@@ -37,9 +35,7 @@ def load_tokenizer(
     """
 
     cache_dir = kwargs.pop("cache_dir", Constants.CACHE_DIR)
-    return AutoTokenizer.from_pretrained(
-        model_name, cache_dir=cache_dir, **kwargs
-    )
+    return AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir, **kwargs)
 
 
 def load_model(model_name: str, **kwargs: Any) -> PreTrainedModel:
@@ -112,9 +108,7 @@ def make_dataset(
     """
     dataset = []
     for suffix in suffixes:
-        for positive_persona, negative_persona in zip(
-            positive_personas, negative_personas
-        ):
+        for positive_persona, negative_persona in zip(positive_personas, negative_personas, strict=False):
             positive_template = template.format(persona=positive_persona)
             negative_template = template.format(persona=negative_persona)
             dataset.append(
@@ -148,9 +142,7 @@ def chat_template_unparse(messages: list[tuple[str, str]]) -> str:
     template = []
 
     for role, content in messages:
-        template.append(
-            f"<|start_header_id|>{role}<|end_header_id|>\n\n{content}<|eot_id|>"
-        )
+        template.append(f"<|start_header_id|>{role}<|end_header_id|>\n\n{content}<|eot_id|>")
     if messages[-1][0] != "assistant":
         # prefill assistant prefix
         template.append("<|start_header_id|>assistant<|end_header_id|>\n\n")

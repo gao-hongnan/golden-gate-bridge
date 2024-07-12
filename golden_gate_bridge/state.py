@@ -21,9 +21,7 @@ class State(BaseModel):
     def save_snapshots(self, filepath: str) -> None:
         """Save the state dictionaries of the components to a file."""
         state = {
-            "controlled_vector": (
-                self.controlled_vector if self.controlled_vector else None
-            ),
+            "controlled_vector": (self.controlled_vector if self.controlled_vector else None),
             "answers": self.answers,
             "composer": self.composer.model_dump() if self.composer else None,
         }
@@ -34,15 +32,9 @@ class State(BaseModel):
         """Load the state dictionaries of the components from a file."""
         state = torch.load(filepath)
 
-        controlled_vector = (
-            state["controlled_vector"] if state["controlled_vector"] else None
-        )
+        controlled_vector = state["controlled_vector"] if state["controlled_vector"] else None
         answers = state["answers"]
-        composer = (
-            Composer.model_validate(state["composer"])
-            if state["composer"]
-            else None
-        )
+        composer = Composer.model_validate(state["composer"]) if state["composer"] else None
         return cls(
             controlled_vector=controlled_vector,
             answers=answers,

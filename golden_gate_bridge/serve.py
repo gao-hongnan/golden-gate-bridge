@@ -1,19 +1,9 @@
 from __future__ import annotations
 
-from typing import Optional
-
 import modal
 from fastapi import FastAPI, Header
-import asyncio
-from .config import (
-    GPU,
-    IMAGE,
-    VOLUME,
-    Constants,
-    GenerationConfig,
-    ServingConfig,
-    app,
-)
+
+from .config import GPU, IMAGE, VOLUME, Constants, GenerationConfig, ServingConfig, app
 from .state import GenerationOutput, State
 from .train import generate
 from .utils import chat_template_unparse, load_model, load_tokenizer
@@ -74,7 +64,7 @@ class Model:
         )
 
     @modal.method()
-    async def inference(self, serving_config: ServingConfig) -> GenerationOutput:
+    def inference(self, serving_config: ServingConfig) -> GenerationOutput:
         assert self.composer is not None
 
         wrapped_model = self.model
@@ -92,8 +82,7 @@ class Model:
         )
         self.composer.pretty_print()
 
-        output = await asyncio.to_thread(
-            generate,
+        output = generate(
             composer=self.composer,
             model=self.model,
             tokenizer=self.tokenizer,
@@ -113,7 +102,7 @@ async def root() -> dict[str, str]:
 
 
 @web_app.post("/api/v1/generate", response_model=GenerationOutput)
-async def generate_output(serving_config: ServingConfig, identifier: Optional[str] = Header(None)) -> GenerationOutput:
+async def generate_output(serving_config: ServingConfig, identifier: str | None = Header(None)) -> GenerationOutput:
     r"""Generate responses for the given input using the control model. The
     **identifier** is optional and defaults to the value of the `IDENTIFIER`
     constant - which retrieves the specific model version.
@@ -140,7 +129,7 @@ async def generate_output(serving_config: ServingConfig, identifier: Optional[st
     """
     identifier = identifier or IDENTIFIER
     model = Model(identifier=identifier)
-    output = await model.inference.remote(serving_config)
+    output = model.inference.remote.aio(serving_config)
     return output  # type: ignore[no-any-return]
 
 
