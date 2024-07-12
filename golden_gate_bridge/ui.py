@@ -6,24 +6,19 @@ from typing import Any, Type
 import modal
 from fastapi import FastAPI
 
-from .config import GPU, IMAGE, VOLUME, Constants, GenerationConfig, ServingConfig, app
+from .config import IMAGE, Constants, ServingConfig, app
 from .logger import get_logger
-from .state import GenerationOutput, State
-from .train import generate
-from .utils import chat_template_unparse, load_model, load_tokenizer
+from .serve import Model, IDENTIFIER, IDENTIFIERS
+from .state import GenerationOutput
 
 with IMAGE.imports():
     import gradio as gr
     from gradio.routes import mount_gradio_app
-    from repeng import ControlModel, ControlVector
 
 logger = get_logger(__name__)
 
 
 web_app = FastAPI()
-
-IDENTIFIER: str = "20240608191148"
-IDENTIFIERS: list[str] = ["20240608191148"]
 
 
 class ModelSingleton:
@@ -37,83 +32,6 @@ class ModelSingleton:
                 if cls._model_instance is None:
                     cls._model_instance = Model(identifier)
         return cls._model_instance
-
-
-@app.cls(
-    image=IMAGE,
-    gpu=GPU,
-    timeout=int(Constants.TIMEOUT),
-    container_idle_timeout=int(Constants.CONTAINER_IDLE_TIMEOUT),
-    volumes={Constants.TARGET_ARTIFACTS_DIR: VOLUME},
-)
-class Model:
-    pretrained_model_name_or_path: str = Constants.MODEL_NAME
-    device: str = "cuda:0"  # master gpu for inference
-
-    def __init__(self, identifier: str = IDENTIFIER) -> None:
-        self.identifier = identifier
-
-    @modal.enter()
-    def start_engine(self) -> None:
-        """Start the engine."""
-        # load state from identifier
-        self.state = State.load_snapshots(
-            filepath=f"{Constants.TARGET_ARTIFACTS_DIR}/{Constants.APP_NAME}/{self.identifier}/{Constants.FILE_NAME}.pt"
-        )
-        self.state.pretty_print()
-
-        # load composer
-        self.composer = self.state.composer
-        assert self.composer is not None
-        assert self.composer.registry.identifier == self.identifier
-        self.composer.pretty_print()
-
-        # load tokenizer
-        self.tokenizer = load_tokenizer(self.pretrained_model_name_or_path)
-        self.tokenizer.pad_token_id = self.composer.tokenizer_config.pad_token_id
-        assert self.composer.generation_config.pad_token_id == self.tokenizer.eos_token_id
-
-        # load model
-        self.model = load_model(
-            self.pretrained_model_name_or_path,
-            device_map=self.composer.llama_config.device_map,
-        )
-
-        # load controlled vector
-        self.controlled_vector = ControlVector.import_gguf(
-            path=f"{self.composer.registry.save_directory}/{self.identifier}/{self.composer.registry.gguf_filename}"
-        )
-
-    @modal.method()
-    def inference(self, serving_config: ServingConfig) -> GenerationOutput:
-        assert self.composer is not None
-
-        wrapped_model = self.model
-        self.model = ControlModel(wrapped_model, layer_ids=self.composer.llama_config.layer_ids)
-        # update composer generation config
-        self.composer.generation_config = GenerationConfig(
-            question=serving_config.question,
-            max_new_tokens=serving_config.max_new_tokens,
-            repetition_penalty=serving_config.repetition_penalty,
-            temperature=serving_config.temperature,
-            show_baseline=serving_config.show_baseline,
-            coefficients=serving_config.coefficients,
-            pad_token_id=self.tokenizer.eos_token_id,
-            device=self.device,
-        )
-        self.composer.pretty_print()
-
-        output = generate(
-            composer=self.composer,
-            model=self.model,
-            tokenizer=self.tokenizer,
-            input=chat_template_unparse([("user", f"{serving_config.question}")]),
-            labeled_vectors=[
-                (f"{coef} * bridge_vector", coef * self.controlled_vector)
-                for coef in self.composer.generation_config.coefficients
-            ],
-        )
-        return output
 
 
 @app.function(
@@ -141,8 +59,8 @@ def ui() -> FastAPI:
 
         if isinstance(coefficients, str):
             coefficients = [float(coef.strip()) for coef in coefficients.split(",")]
-        model = Model(identifier=identifier)
-        # model = ModelSingleton.get_instance(identifier=identifier)
+        # model = Model(identifier=identifier)
+        model = ModelSingleton.get_instance(identifier=identifier)
         serving_config = ServingConfig(
             question=question,
             max_new_tokens=max_new_tokens,

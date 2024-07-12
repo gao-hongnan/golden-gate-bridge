@@ -57,6 +57,8 @@ class Model:
             self.pretrained_model_name_or_path,
             device_map=self.composer.llama_config.device_map,
         )
+        wrapped_model = self.model
+        self.model = ControlModel(wrapped_model, layer_ids=self.composer.llama_config.layer_ids)
 
         # load controlled vector
         self.controlled_vector = ControlVector.import_gguf(
@@ -67,8 +69,6 @@ class Model:
     def inference(self, serving_config: ServingConfig) -> GenerationOutput:
         assert self.composer is not None
 
-        wrapped_model = self.model
-        self.model = ControlModel(wrapped_model, layer_ids=self.composer.llama_config.layer_ids)
         # update composer generation config
         self.composer.generation_config = GenerationConfig(
             question=serving_config.question,
