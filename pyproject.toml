@@ -16,7 +16,13 @@ classifiers = [
 ]
 
 dependencies = [
-    "modal"
+    "modal==0.62.201",
+    "wandb==0.16.3",
+    "rich==13.7.1",
+    "pydantic~=2.0.0",
+    "fastapi==0.108.0",
+    "gradio~=3.50.2",
+    "umap-learn"
 ]
 
 [project.urls]

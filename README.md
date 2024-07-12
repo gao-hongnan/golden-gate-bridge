@@ -1,7 +1,16 @@
 # Golden Gate Bridge
 
-This project is heavily inspired by the [Repeng](https://github.com/vgel/repeng/tree/main)
-repository - which is a python library for generating control vectors (read: representation engineering).
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![Python Version](https://img.shields.io/badge/python-3.11-blue.svg)
+![License](https://img.shields.io/badge/license-Apache2.0-blue.svg)
+![Python version](https://img.shields.io/badge/Python-3.9-3776AB)
+[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/gaohongnan.svg?style=social&label=Follow%20%40gaohongnan)](https://twitter.com/gaohongnan)
+[![Continuous Integration Checks on Omnivault.](https://github.com/gao-hongnan/omniverse/actions/workflows/ci_omnivault.yaml/badge.svg)](https://github.com/gao-hongnan/omniverse/actions/workflows/ci_omnivault.yaml)
+
+This project is heavily inspired by the
+[Repeng](https://github.com/vgel/repeng/tree/main) repository - which is a
+python library for generating control vectors (read: representation
+engineering).
 
 The configuration, state, constants, and initialization settings for the project
 are currently housed in the `golden_gate_bridge/config.py` file. Presently, any
@@ -65,7 +74,8 @@ curl -X 'POST' \
 }'
 ```
 
-One can access the swagger ui [here](https://gao-hongnan--golden-gate-bridge-repeng-web.modal.run/docs).
+One can access the swagger ui
+[here](https://gao-hongnan--golden-gate-bridge-repeng-web.modal.run/docs).
 
 ## Serve/Deploy Gradio
 
@@ -81,7 +91,8 @@ To deploy the Gradio interface, we execute the following command:
 modal deploy golden_gate_bridge.ui
 ```
 
-One can access the live link [here](https://gao-hongnan--golden-gate-bridge-repeng-ui.modal.run/).
+One can access the live link
+[here](https://gao-hongnan--golden-gate-bridge-repeng-ui.modal.run/).
 
 ## CI Checks
 
@@ -91,8 +102,8 @@ ruff format --check
 dmypy run -- golden_gate_bridge
 ```
 
-For typing, I did not use `internals/` and added my own `mypy.ini` file, the configurations
-is as follows:
+For typing, I did not use `internals/` and added my own `mypy.ini` file, the
+configurations is as follows:
 
 <details>
 <summary>mypy config</summary>
@@ -187,7 +198,8 @@ This will show you the contents of the volume:
 | golden-gate-bridge-repeng/20240605160831                          | dir  | 2024-06-05 16:12 +08 | 80 B      |
 | golden-gate-bridge-repeng/controlled_golden_gate_bridge_repeng.pt | file | 2024-06-04 19:50 +08 | 131.4 GiB |
 
-And we can further check the contents of the directory `golden-gate-bridge-repeng/20240605160831` if we run the following command:
+And we can further check the contents of the directory
+`golden-gate-bridge-repeng/20240605160831` if we run the following command:
 
 ```bash
 modal volume ls artifacts-volume golden-gate-bridge-repeng/20240605160831
@@ -200,12 +212,14 @@ modal volume ls artifacts-volume golden-gate-bridge-repeng/20240605160831
 
 ## CHANGELOG
 
-Latest app-id@ap-w6lsbMKBgeKFkNyIRSzg6x with git commit hash@664e2002a04d5a102c81f0d5d0f58a01e0468b93 trained and ran on a grid
-from $0.6$ to $1.1$ with step size $0.05$ for the coefficients. This
-serves as a baseline for the model. The identifier for the run is `20240608191148`.
+Latest app-id@ap-w6lsbMKBgeKFkNyIRSzg6x with git commit
+hash@664e2002a04d5a102c81f0d5d0f58a01e0468b93 trained and ran on a grid from
+$0.6$ to $1.1$ with step size $0.05$ for the coefficients. This serves as a
+baseline for the model. The identifier for the run is `20240608191148`.
 
 The app logs are not available to everyone, so here I include a link to the
-public weights and biases [logs here](https://wandb.ai/hongnangao/golden-gate-bridge-repeng/runs/alqffe07/logs?nw=nwuserhongnangao).
+public weights and biases
+[logs here](https://wandb.ai/hongnangao/golden-gate-bridge-repeng/runs/alqffe07/logs?nw=nwuserhongnangao).
 
 ## References And Further Readings
 
@@ -213,6 +227,6 @@ First, a special thanks to the Modal team for their prompt support and guidance
 in the slack channel. A shoutout to Charles Frye for his assistance in helping
 me get started with Modal. His enthusiasm is through the roof lol.
 
-- [Serverless Deployment of Mistral 7B with Modal Labs and HuggingFace](https://blog.premai.io/serverless-deployment-using-huggingface-and-modal/)
-- [Pet Art Dreambooth with Hugging Face and Gradio](https://modal.com/docs/examples/dreambooth_app)
-- [Repeng](https://github.com/vgel/repeng/blob/main/repeng/)
+-   [Serverless Deployment of Mistral 7B with Modal Labs and HuggingFace](https://blog.premai.io/serverless-deployment-using-huggingface-and-modal/)
+-   [Pet Art Dreambooth with Hugging Face and Gradio](https://modal.com/docs/examples/dreambooth_app)
+-   [Repeng](https://github.com/vgel/repeng/blob/main/repeng/)

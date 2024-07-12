@@ -1,1 +1,8 @@
-modal
+modal==0.62.201
+git+https://github.com/vgel/repeng.git@d15085247ccefe38261a12ea70d9c72609bb1081
+wandb==0.16.3
+rich==13.7.1
+pydantic~=2.0.0
+fastapi==0.108.0
+gradio~=3.50.2
+umap-learn
