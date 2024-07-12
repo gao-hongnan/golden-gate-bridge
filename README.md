@@ -1,11 +1,9 @@
 # Golden Gate Bridge
 
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/gaohongnan.svg?style=social&label=Follow%20%40gaohongnan)](https://twitter.com/gaohongnan)
 ![Python Version](https://img.shields.io/badge/python-3.11-blue.svg)
 ![License](https://img.shields.io/badge/license-Apache2.0-blue.svg)
-![Python version](https://img.shields.io/badge/Python-3.9-3776AB)
-[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/gaohongnan.svg?style=social&label=Follow%20%40gaohongnan)](https://twitter.com/gaohongnan)
-[![Continuous Integration Checks on Omnivault.](https://github.com/gao-hongnan/omniverse/actions/workflows/ci_omnivault.yaml/badge.svg)](https://github.com/gao-hongnan/omniverse/actions/workflows/ci_omnivault.yaml)
+[![Continuous Integration](https://github.com/gao-hongnan/golden-gate-bridge/actions/workflows/continuous_integration.yaml/badge.svg)](https://github.com/gao-hongnan/golden-gate-bridge/actions/workflows/continuous_integration.yaml)
 
 This project is heavily inspired by the
 [Repeng](https://github.com/vgel/repeng/tree/main) repository - which is a

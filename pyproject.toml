@@ -100,7 +100,7 @@ skip_glob = [
 
 [tool.black]
 line-length = 120           # NOTE: in sync with ruff
-target-version = ['py39']   # NOTE: in sync with ruff
+target-version = ['py311']   # NOTE: in sync with ruff
 verbose = false
 diff = false
 color = false

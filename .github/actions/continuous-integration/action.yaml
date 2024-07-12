@@ -59,6 +59,7 @@ runs:
         set -e -o pipefail
         cd ${{ inputs.working-directory }} || exit 1
         export CUSTOM_PACKAGES="golden_gate_bridge"
+        export CUSTOM_FLAGS="--python-version=3.11"
         curl -sSL https://raw.githubusercontent.com/gao-hongnan/omniverse/dev/scripts/devops/continuous-integration/type_mypy.sh -o type_mypy.sh
         chmod +x type_mypy.sh
         bash type_mypy.sh | tee ${{ inputs.mypy-output-filename }}
